@@ -117,7 +117,7 @@ Requests are sent by the host machine running your server, and not by your visit
 • If you have just set up the plugin, you may have made a mistake when entering your station ID or API key. Check both values ​​and try again.
 <br>
 <br>
-• Your API key may have expired. Log in to your WeatherUnderground account, then click on "My Profile," "Member Settings," and "API Keys."
+• Your API key may have expired. Log in to your WeatherUnderground account, then click on "My Profile", "Member Settings", and "API Keys".
 <br>
 If you find that the key has expired, generate a new one and update the JSON configuration file.
 <br>
