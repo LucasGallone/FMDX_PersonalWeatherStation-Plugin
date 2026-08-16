@@ -114,7 +114,9 @@ Requests are sent by the host machine running your server, and not by your visit
 
 ## The plugin displays "No data available". What should I do?
 
-• If you have just set up the plugin, you may have made a mistake when entering your station ID or API key. Check both values ​​and try again.
+• If you have just set up the plugin, you may have made a mistake when entering your station ID or API key.
+<br>
+Check both values ​​and try again.
 <br>
 <br>
 • Your API key may have expired. Log in to your WeatherUnderground account, then click on "My Profile", "Member Settings", and "API Keys".
@@ -127,4 +129,6 @@ If you find that the key has expired, generate a new one and update the JSON con
 You can try connecting to weatherunderground.com to verify if the website works.
 <br>
 <br>
-• In rarer cases, the host machine may refuse to connect to the WeatherUnderground's servers. Check your settings to ensure that no network restrictions are enabled.
+• In rarer cases, the host machine may refuse to connect to the WeatherUnderground's servers.
+<br>
+Check your settings to ensure that no network restrictions are enabled.
