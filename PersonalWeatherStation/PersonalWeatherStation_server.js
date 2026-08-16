@@ -74,6 +74,7 @@ let previousPressure = null;
 let pressureTrend = null;
 let activePayload = null;
 let broadcastTimer = null;
+let fetchPromise = null;
 
 function parseJSONWithComments(content) {
     const cleanContent = content.replace(/\/\/.*$/gm, '');
@@ -101,8 +102,13 @@ function requestWeatherAPI(url) {
 }
 
 async function fetchWeatherData() {
-    try {
-        if (!fs.existsSync(configFile)) {
+    if (fetchPromise) {
+        return fetchPromise;
+    }
+
+    fetchPromise = (async () => {
+        try {
+            if (!fs.existsSync(configFile)) {
             if (!hasWarnedUnconfigured) {
                 logInfo("The plugin is not yet configured. Go to /plugins_configs/PersonalWeatherStation.json to enter your weather station's ID and API key.");
                 hasWarnedUnconfigured = true;
@@ -190,7 +196,12 @@ async function fetchWeatherData() {
             return activePayload;
         }
         return { status: "error", intervalMins: 1 };
+    } finally {
+        fetchPromise = null;
     }
+    })();
+
+    return fetchPromise;
 }
 
 async function loopBroadcast() {
@@ -221,30 +232,24 @@ function initClientConnectionListener() {
             clearInterval(checkWssInterval);
 
             pluginsWss.on('connection', async (wsClient) => {
-                    // Immediate delivery of the RAM cache to new clients (zero API calls)
-                    let data = activePayload;
-                    if (!data) {
-                        data = await fetchWeatherData();
-                    }
-                    if (data && wsClient.readyState === wsClient.OPEN) {
-                        wsClient.send(JSON.stringify({ type: 'PersonalWeatherStation', value: data }));
-                    }
+                // Fetches fresh data if the server was "asleep", or uses RAM if less than 1 minute old
+                const data = await fetchWeatherData();
+                if (data && wsClient.readyState === wsClient.OPEN) {
+                    wsClient.send(JSON.stringify({ type: 'PersonalWeatherStation', value: data }));
+                }
 
-                    wsClient.on('message', async (msg) => {
-                        try {
-                            const parsed = JSON.parse(msg);
-                            if (parsed.type === 'PersonalWeatherStation' && parsed.value?.status === 'request') {
-                                let resData = activePayload;
-                                if (!resData) {
-                                    resData = await fetchWeatherData();
-                                }
-                                if (resData && wsClient.readyState === wsClient.OPEN) {
-                                    wsClient.send(JSON.stringify({ type: 'PersonalWeatherStation', value: resData }));
-                                }
+                wsClient.on('message', async (msg) => {
+                    try {
+                        const parsed = JSON.parse(msg);
+                        if (parsed.type === 'PersonalWeatherStation' && parsed.value?.status === 'request') {
+                            const resData = await fetchWeatherData();
+                            if (resData && wsClient.readyState === wsClient.OPEN) {
+                                wsClient.send(JSON.stringify({ type: 'PersonalWeatherStation', value: resData }));
                             }
-                        } catch (e) {}
-                    });
+                        }
+                    } catch (e) {}
                 });
+            });
         }
     }, 1000);
 }

@@ -44,7 +44,7 @@
                         if (msg.type === 'PersonalWeatherStation' && msg.value) {
                             const payload = msg.value;
 
-                            // Ignores request messages sent by other connecting clients if the number of clients is greater than 1
+                            // Ignores request messages sent by other connecting clients
                             if (payload.status === 'request') {
                                 return;
                             }
@@ -109,7 +109,7 @@
             wasHovered = $(existingPlugin).is(':hover');
         }
 
-        // Forced regeneration on data update to force FM-DX to recalculate the tooltip.
+        // Forced regeneration on data update to force FM-DX to recalculate the tooltip
         document.getElementById('weather-plugin')?.remove();
 
         const unitData = isImperial ? obs.imperial : obs.metric;
