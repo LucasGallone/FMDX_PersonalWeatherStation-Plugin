@@ -24,7 +24,7 @@ To retrieve the data, it communicates with the WeatherUnderground API and displa
 2 - Extract the ZIP file content.
 <br>
 <br>
-3 - Place the `PersonalWeatherStation.js` file and the `PersonalWeatherStation` folder in the plugins folder of your FM-DX webserver.
+3 - Place the `PersonalWeatherStation-Plugin.js` file and the `PersonalWeatherStation` folder in the plugins folder of your FM-DX webserver.
 <br>
 <br>
 4 - Start/restart your FM-DX webserver.
