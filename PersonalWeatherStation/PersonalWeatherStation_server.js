@@ -181,8 +181,6 @@ async function fetchWeatherData() {
             return activePayload;
         }
         
-        // Si l'API échoue ou bloque la requête, on ne détruit PAS la mémoire.
-        // On renvoie simplement les dernières données valides aux utilisateurs.
         if (activePayload) {
             return activePayload;
         }
@@ -223,7 +221,7 @@ function initClientConnectionListener() {
             clearInterval(checkWssInterval);
 
             pluginsWss.on('connection', async (wsClient) => {
-                    // Envoi immédiat du cache RAM aux nouveaux clients (zéro appel API)
+                    // Immediate delivery of the RAM cache to new clients (zero API calls)
                     let data = activePayload;
                     if (!data) {
                         data = await fetchWeatherData();
