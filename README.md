@@ -2,17 +2,16 @@
 
 This plugin allows real-time display of personal weather station data on [FM-DX webservers](https://github.com/NoobishSVK/fm-dx-webserver).
 <br>
+It is a modified version of the ["Weather Plugin" made by NoobishSVK](https://github.com/NoobishSVK/fm-dx-webserver-plugin-weather), to make it compatible with personal stations.
 <br>
-To do this, it communicates with the WeatherUnderground API and displays weather readings, updated at specific minute intervals.
+<br>
+To retrieve the data, it communicates with the WeatherUnderground API and displays weather readings, updated at specific minute intervals.
 <br>
 <br>
 ⚠️ <b>This plugin is intended solely for owners of personal weather stations who contribute to WeatherUnderground by sending their station's data to the site, as contributing is a requirement for obtaining an API key.</b>
 <br>
 <br>
 <b>If you do not have a personal weather station that sends data to WeatherUnderground, you will unfortunately not be able to use it.</b>
-<br>
-<br>
-This plugin is a modified version of the ["Weather Plugin" made by NoobishSVK](https://github.com/NoobishSVK/fm-dx-webserver-plugin-weather), to make it compatible with personal stations.
 <br>
 <br>
 <img width="566" height="517" alt="plugin-meteo-2" src="https://github.com/user-attachments/assets/9d39b4c6-faf3-4e86-bbd2-0f7ef8ae44d7" />
