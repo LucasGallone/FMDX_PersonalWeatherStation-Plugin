@@ -35,7 +35,7 @@ const rawTemplateWithComments = `{
 "apiKey": "", // The API key for your station that can be found on your WU account dashboard.
 "stationModel": "", // The make and model of your station. Will be displayed to visitors. (Optional)
 "unitSystem": "metric", // Use "metric" for metric units, otherwise "imperial" for imperial units.
-"updateIntervalMinutes": 1, // Update interval in minutes when at least one user is connected (minimum is 1).
+"updateIntervalMinutes": 3, // Update interval in minutes when at least one user is connected (minimum is 1).
 
 // Additional weather values in the plugin details display. Set to "true" to show, "false" to hide.
 // If all values ​​are set to "false", only the temperature will be displayed and the details tooltip will be disabled.
