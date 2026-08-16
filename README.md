@@ -1,27 +1,27 @@
 # Personal Weather Station Plugin for FM-DX Webservers
 
-This plugin allows real-time display of personal weather station data on FM-DX webservers.
+This plugin allows real-time display of personal weather station data on [FM-DX webservers](https://github.com/NoobishSVK/fm-dx-webserver).
 <br>
 <br>
 To do this, it communicates with the WeatherUnderground API and displays weather readings, updated at specific minute intervals.
 <br>
 <br>
-Important note: This plugin is intended solely for owners of personal weather stations who contribute to WeatherUnderground by sending their station's data to the site, as contributing is a requirement for obtaining an API key.
+⚠️ <b>Important note: This plugin is intended solely for owners of personal weather stations who contribute to WeatherUnderground by sending their station's data to the site, as contributing is a requirement for obtaining an API key.</b>
 <br>
-If you do not have a personal weather station that sends data to WeatherUnderground, you will unfortunately not be able to use it.
+<b>If you do not have a personal weather station that sends data to WeatherUnderground, you will unfortunately not be able to use it.</b>
 <br>
 <br>
-This plugin is a modified version of the "Weather Plugin" made by NoobishSVK, to make it compatible with personal stations.
+This plugin is a modified version of the ["Weather Plugin" made by NoobishSVK](https://github.com/NoobishSVK/fm-dx-webserver-plugin-weather), to make it compatible with personal stations.
 <br>
 <br>
 <img width="566" height="517" alt="plugin-meteo-2" src="https://github.com/user-attachments/assets/9d39b4c6-faf3-4e86-bbd2-0f7ef8ae44d7" />
 
 ## Installation
 
-1 - Download the entire repository as a ZIP file by clicking here.
+1 - Download the entire repository as a ZIP file [by clicking here](https://github.com/LucasGallone/FMDX_PersonalWeatherStation/archive/refs/heads/main.zip).
 <br>
 <br>
-2 - Extract the ZIP file content. 
+2 - Extract the ZIP file content.
 <br>
 <br>
 3 - Place the `PersonalWeatherStation.js` file and the `PersonalWeatherStation` folder in the plugins folder of your FM-DX webserver.
@@ -116,19 +116,19 @@ Requests are sent by the host machine running your server, and not by your visit
 
 • If you have just set up the plugin, you may have made a mistake when entering your station ID or API key.
 <br>
-Check both values ​​and try again.
+-> Check both values ​​and try again.
 <br>
 <br>
 • Your API key may have expired. Log in to your WeatherUnderground account, then click on "My Profile", "Member Settings", and "API Keys".
 <br>
-If you find that the key has expired, generate a new one and update the JSON configuration file.
+-> If you find that the key has expired, generate a new one and update the JSON configuration file.
 <br>
 <br>
-• WeatherUnderground's servers may be temporarily inaccessible. Please wait a moment and try again.
+• WeatherUnderground's servers may be temporarily inaccessible.
 <br>
-You can try connecting to weatherunderground.com to verify if the website works.
+-> Please wait a moment and try again. You can try connecting to weatherunderground.com to verify if the website works.
 <br>
 <br>
 • In rarer cases, the host machine may refuse to connect to the WeatherUnderground's servers.
 <br>
-Check your settings to ensure that no network restrictions are enabled.
+-> Check your settings to ensure that no network restrictions are enabled.
