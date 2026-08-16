@@ -6,7 +6,7 @@ This plugin allows real-time display of personal weather station data on [FM-DX 
 To do this, it communicates with the WeatherUnderground API and displays weather readings, updated at specific minute intervals.
 <br>
 <br>
-⚠️ <b>Important note: This plugin is intended solely for owners of personal weather stations who contribute to WeatherUnderground by sending their station's data to the site, as contributing is a requirement for obtaining an API key.</b>
+⚠️ <b>This plugin is intended solely for owners of personal weather stations who contribute to WeatherUnderground by sending their station's data to the site, as contributing is a requirement for obtaining an API key.</b>
 <br>
 <b>If you do not have a personal weather station that sends data to WeatherUnderground, you will unfortunately not be able to use it.</b>
 <br>
