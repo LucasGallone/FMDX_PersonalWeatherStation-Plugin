@@ -44,7 +44,6 @@
                         if (msg.type === 'PersonalWeatherStation' && msg.value) {
                             const payload = msg.value;
 
-                            // Ignores request messages sent by other connecting clients
                             if (payload.status === 'request') {
                                 return;
                             }

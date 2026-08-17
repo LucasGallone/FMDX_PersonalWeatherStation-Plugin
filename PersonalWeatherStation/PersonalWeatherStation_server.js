@@ -155,7 +155,6 @@ async function fetchWeatherData(isScheduledLoop = false) {
             const units = (unitSystem && unitSystem.toLowerCase() === 'imperial') ? 'e' : 'm';
             const isImperial = (units === 'e');
 
-            // Si les données en RAM sont plus récentes que le délai requis, on évite l'appel API
             if (inMemoryData && (now - lastFetchTime < requiredCooldown)) {
                 activePayload = {
                     ...inMemoryData,
@@ -231,7 +230,6 @@ async function checkAndBroadcast() {
             emitPluginEvent('PersonalWeatherStation', weatherData);
         }
     } else {
-        // Dès qu'il n'y a plus personne, on remet le chronomètre à zéro pour forcer une donnée fraîche au retour du prochain visiteur
         lastFetchTime = 0;
     }
 }
