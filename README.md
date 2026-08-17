@@ -7,6 +7,8 @@ It is a modified version of the ["Weather Plugin" made by NoobishSVK](https://gi
 <br>
 To retrieve the data, it communicates with the WeatherUnderground API and displays weather readings, updated at specific minute intervals.
 <br>
+All weather station models are supported, provided they can communicate with WeatherUnderground.
+<br>
 <br>
 ⚠️ <b>This plugin is intended solely for owners of personal weather stations who contribute to WeatherUnderground by sending their station's data to the site, as contributing is a requirement for obtaining an API key.</b>
 <br>
@@ -126,7 +128,7 @@ Requests are sent by the host machine running your server, and not by your visit
 <br>
 • WeatherUnderground's servers may be temporarily inaccessible.
 <br>
--> Wait a moment and try again. You can try connecting to weatherunderground.com to verify if the website works.
+-> Wait a moment and try again. You can try connecting to wunderground.com to verify if the website works.
 <br>
 <br>
 • In rarer cases, the host machine may refuse to connect to the WeatherUnderground's servers.
