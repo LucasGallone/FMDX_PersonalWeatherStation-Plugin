@@ -101,15 +101,23 @@
         }
     }
 
+    let lastRenderedSignature = "";
+
     function renderWeather(obs, isImperial, display, trend, stationModel) {
-        // Save cursor state before regeneration on data update
+        const currentSignature = JSON.stringify(obs) + isImperial + JSON.stringify(display) + trend + stationModel;
+        
         let existingPlugin = document.getElementById('weather-plugin');
+
+        if (existingPlugin && currentSignature === lastRenderedSignature) {
+            return;
+        }
+        lastRenderedSignature = currentSignature;
+
         let wasHovered = false;
         if (existingPlugin) {
             wasHovered = $(existingPlugin).is(':hover');
         }
 
-        // Forced regeneration on data update to force FM-DX to recalculate the tooltip
         document.getElementById('weather-plugin')?.remove();
 
         const unitData = isImperial ? obs.imperial : obs.metric;

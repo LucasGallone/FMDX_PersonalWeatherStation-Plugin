@@ -35,7 +35,7 @@ const rawTemplateWithComments = `{
 "apiKey": "", // The API key for your station that can be found on your WU account dashboard.
 "stationModel": "", // The make and model of your station. Will be displayed to visitors. (Optional)
 "unitSystem": "metric", // Use "metric" for metric units, otherwise "imperial" for imperial units.
-"updateIntervalMinutes": 3, // Update interval in minutes when at least one user is connected (minimum is 1 - default is 3).
+"updateIntervalMinutes": 3, // Update interval in minutes when at least one user is connected (minimum is 1, default is 3).
 
 // Additional weather values in the plugin details display. Set to "true" to show, "false" to hide.
 // If all values ​​are set to "false", only the temperature will be displayed and the details tooltip will be disabled.
@@ -73,8 +73,7 @@ let lastFetchTime = 0;
 let previousPressure = null;
 let pressureTrend = null;
 let activePayload = null;
-let broadcastTimer = null;
-let fetchPromise = null;
+let isFetching = false;
 
 function parseJSONWithComments(content) {
     const cleanContent = content.replace(/\/\/.*$/gm, '');
@@ -83,7 +82,14 @@ function parseJSONWithComments(content) {
 
 function requestWeatherAPI(url) {
     return new Promise((resolve, reject) => {
-        https.get(url, (res) => {
+        const req = https.get(url, {
+            timeout: 8000,
+            headers: {
+                'User-Agent': 'FM-DX-PWS-Plugin/1.0',
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache'
+            }
+        }, (res) => {
             let body = '';
             res.on('data', chunk => body += chunk);
             res.on('end', () => {
@@ -97,18 +103,25 @@ function requestWeatherAPI(url) {
                     reject(new Error(`HTTP ${res.statusCode}`));
                 }
             });
-        }).on('error', reject);
+        });
+
+        req.on('timeout', () => {
+            req.destroy();
+            reject(new Error("Request timeout"));
+        });
+
+        req.on('error', reject);
     });
 }
 
-async function fetchWeatherData() {
-    if (fetchPromise) {
-        return fetchPromise;
+async function fetchWeatherData(isScheduledLoop = false) {
+    if (isFetching) {
+        return activePayload;
     }
 
-    fetchPromise = (async () => {
-        try {
-            if (!fs.existsSync(configFile)) {
+    isFetching = true;
+    try {
+        if (!fs.existsSync(configFile)) {
             if (!hasWarnedUnconfigured) {
                 logInfo("The plugin is not yet configured. Go to /plugins_configs/PersonalWeatherStation.json to enter your weather station's ID and API key.");
                 hasWarnedUnconfigured = true;
@@ -125,35 +138,36 @@ async function fetchWeatherData() {
         const stationModel = config.stationModel || "";
         const unitSystem = config.unitSystem || "metric";
         const intervalMins = Math.max(1, parseInt(config.updateIntervalMinutes || 1));
-        const cacheDuration = intervalMins * 60 * 1000;
+        
+        const requiredCooldown = isScheduledLoop ? (intervalMins * 60 * 1000 - 2000) : (60 * 1000 - 2000);
 
-        if (!apiKey || !stationId || apiKey === "" || stationId === "") {
-            if (!hasWarnedUnconfigured) {
-                logInfo("The plugin is not yet configured. Go to /plugins_configs/PersonalWeatherStation.json to enter your weather station's ID and API key.");
-                hasWarnedUnconfigured = true;
+            if (!apiKey || !stationId || apiKey === "" || stationId === "") {
+                if (!hasWarnedUnconfigured) {
+                    logInfo("The plugin is not yet configured. Go to /plugins_configs/PersonalWeatherStation.json to enter your weather station's ID and API key.");
+                    hasWarnedUnconfigured = true;
+                }
+                activePayload = { status: "unconfigured", intervalMins: intervalMins };
+                return activePayload;
             }
-            activePayload = { status: "unconfigured", intervalMins: intervalMins };
-            return activePayload;
-        }
 
-        const displayConfig = config.display || {};
-        const now = Date.now();
-        const units = (unitSystem && unitSystem.toLowerCase() === 'imperial') ? 'e' : 'm';
-        const isImperial = (units === 'e');
+            const displayConfig = config.display || {};
+            const now = Date.now();
+            const units = (unitSystem && unitSystem.toLowerCase() === 'imperial') ? 'e' : 'm';
+            const isImperial = (units === 'e');
 
-        // Check RAM cache using dynamic user-defined interval
-        if (inMemoryData && (now - lastFetchTime < cacheDuration)) {
-            activePayload = {
-                ...inMemoryData,
-                status: "ok",
-                displayConfig: displayConfig,
-                isImperial: isImperial,
-                pressureTrend: pressureTrend,
-                stationModel: stationModel,
-                intervalMins: intervalMins
-            };
-            return activePayload;
-        }
+            // Si les données en RAM sont plus récentes que le délai requis, on évite l'appel API
+            if (inMemoryData && (now - lastFetchTime < requiredCooldown)) {
+                activePayload = {
+                    ...inMemoryData,
+                    status: "ok",
+                    displayConfig: displayConfig,
+                    isImperial: isImperial,
+                    pressureTrend: pressureTrend,
+                    stationModel: stationModel,
+                    intervalMins: intervalMins
+                };
+                return activePayload;
+            }
 
         const url = `https://api.weather.com/v2/pws/observations/current?stationId=${stationId}&format=json&units=${units}&numericPrecision=decimal&apiKey=${apiKey}`;
         const data = await requestWeatherAPI(url);
@@ -197,32 +211,29 @@ async function fetchWeatherData() {
         }
         return { status: "error", intervalMins: 1 };
     } finally {
-        fetchPromise = null;
+        isFetching = false;
     }
-    })();
-
-    return fetchPromise;
 }
 
-async function loopBroadcast() {
+async function checkAndBroadcast() {
     const pluginsWss = (typeof getPluginsWss === 'function') ? getPluginsWss() : null;
 
-    // Call API and push data only if clients are connected
-    if (pluginsWss && pluginsWss.clients && pluginsWss.clients.size > 0) {
-        const weatherData = await fetchWeatherData();
+    let activeClientsCount = 0;
+    if (pluginsWss && pluginsWss.clients) {
+        pluginsWss.clients.forEach(client => {
+            if (client.readyState === 1) activeClientsCount++;
+        });
+    }
+
+    if (activeClientsCount > 0) {
+        const weatherData = await fetchWeatherData(true);
         if (weatherData && typeof emitPluginEvent === 'function') {
             emitPluginEvent('PersonalWeatherStation', weatherData);
         }
+    } else {
+        // Dès qu'il n'y a plus personne, on remet le chronomètre à zéro pour forcer une donnée fraîche au retour du prochain visiteur
+        lastFetchTime = 0;
     }
-
-    // Determine the next loop tick based on config
-    let nextInterval = 1;
-    if (activePayload && activePayload.intervalMins) {
-        nextInterval = activePayload.intervalMins;
-    }
-
-    if (broadcastTimer) clearTimeout(broadcastTimer);
-    broadcastTimer = setTimeout(loopBroadcast, nextInterval * 60 * 1000);
 }
 
 function initClientConnectionListener() {
@@ -231,19 +242,13 @@ function initClientConnectionListener() {
         if (pluginsWss) {
             clearInterval(checkWssInterval);
 
-            pluginsWss.on('connection', async (wsClient) => {
-                // Fetches fresh data if the server was "asleep", or uses RAM if less than 1 minute old
-                const data = await fetchWeatherData();
-                if (data && wsClient.readyState === wsClient.OPEN) {
-                    wsClient.send(JSON.stringify({ type: 'PersonalWeatherStation', value: data }));
-                }
-
+            pluginsWss.on('connection', (wsClient) => {
                 wsClient.on('message', async (msg) => {
                     try {
                         const parsed = JSON.parse(msg);
                         if (parsed.type === 'PersonalWeatherStation' && parsed.value?.status === 'request') {
-                            const resData = await fetchWeatherData();
-                            if (resData && wsClient.readyState === wsClient.OPEN) {
+                            const resData = await fetchWeatherData(true);
+                            if (resData && wsClient.readyState === 1) {
                                 wsClient.send(JSON.stringify({ type: 'PersonalWeatherStation', value: resData }));
                             }
                         }
@@ -254,8 +259,10 @@ function initClientConnectionListener() {
     }, 1000);
 }
 
-loopBroadcast();
 initClientConnectionListener();
+checkAndBroadcast();
+
+setInterval(checkAndBroadcast, 60 * 1000);
 
 module.exports = {
     pluginConfig
