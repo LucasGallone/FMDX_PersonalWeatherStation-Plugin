@@ -126,7 +126,7 @@ Requests are sent by the host machine running your server, and not by your visit
 <br>
 • WeatherUnderground's servers may be temporarily inaccessible.
 <br>
--> Please wait a moment and try again. You can try connecting to weatherunderground.com to verify if the website works.
+-> Wait a moment and try again. You can try connecting to weatherunderground.com to verify if the website works.
 <br>
 <br>
 • In rarer cases, the host machine may refuse to connect to the WeatherUnderground's servers.
